@@ -47,6 +47,7 @@
   <ItemGroup>
     <Content Include="index.html" />
     <Content Include="Scripts\index.js" />
+    <Content Include="Styles\index.css" />
     <None Include="Scripts\_references.js" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
