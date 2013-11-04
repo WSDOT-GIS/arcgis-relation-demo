@@ -9,7 +9,7 @@ require([
 	"esri/tasks/query"
 ], function (on, Map, GraphicsLayer, GeometryService, Draw, QueryTask, Query) {
 	"use strict";
-	var map, geometryService, draw, geometry1, geometry2, queryTask, selectedCountiesLayer;
+	var map, geometryService, draw, queryTask, selectedCountiesLayer;
 
 	geometryService = new GeometryService("http://www.wsdot.wa.gov/geosvcs/ArcGIS/rest/services/Geometry/GeometryServer");
 
@@ -26,16 +26,20 @@ require([
 	});
 
 	map.on("load", function () {
-		function queryCounties() {
+
+		/** 
+		 * @returns {dojo/Deferred}
+		 */
+		function queryCounties(response) {
 			var query;
 
 			query = new Query();
 			query.returnGeometry = true;
 			query.geometry = response.geometry;
-			return queryTask.execute(query)
+			return queryTask.execute(query);
 		}
 
-
+		// Create the selected counties layer.
 		selectedCountiesLayer = new GraphicsLayer({
 			id: "selectedCounties",
 			className: "county",
@@ -44,41 +48,28 @@ require([
 
 		map.addLayer(selectedCountiesLayer);
 
+		function addSelectedCountiesToLayer(queryResponse) {
+			queryResponse.features.forEach(function (feature) {
+				selectedCountiesLayer.add(feature);
+			});
+		}
+
+		function handleError(error) {
+			console.error("error", error);
+		}
+
+		/**
+		 * @param {object} response
+		 * @param {object} response.geometry
+		 */
+		function selectCountiesOnDrawComplete(response) {
+			queryCounties(response).then(addSelectedCountiesToLayer, handleError);
+		}
 
 		// Create the draw toolbar.
 		draw = new Draw(map);
-
 		draw.activate("polyline");
+		on.once(draw, "draw-complete", selectCountiesOnDrawComplete);
 
-		on.once(draw, "draw-complete", function (response) {
-			queryCounties(response).then(function (queryResponse) {
-				queryResponse.features.forEach(function (value) {
-					selectedCountiesLayer.add(value);
-				});
-			}, function (error) {
-				console.error("error", error);
-			});
-
-			////// Assign the drawn geometry to geometry1 if it does not already exist.
-			////if (!geometry1) {
-			////	geometry1 = response.geometry;
-
-
-
-			////	draw.activate("polyline");
-
-			////	// TODO: add graphic to the map.
-			////} else {
-			////	geometry2 = response.geometry;
-
-			////	// TODO: add graphic to the map.
-			////	draw.deactivate();
-			////}
-
-			////// If two geometries have been drawn, begin the relate operation.
-			////if (geometry1 && geometry2) {
-
-			////}
-		});
 	});
 });
