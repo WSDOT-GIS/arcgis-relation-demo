@@ -1,5 +1,6 @@
 ﻿/*global require*/
 require([
+	"esri/config",
 	"esri/map",
 	"esri/graphic",
 	"esri/layers/GraphicsLayer",
@@ -7,11 +8,11 @@ require([
 	"esri/toolbars/draw",
 	"esri/tasks/QueryTask",
 	"esri/tasks/query"
-], function (Map, Graphic, GraphicsLayer, GeometryService, Draw, QueryTask, Query) {
+], function (esriConfig, Map, Graphic, GraphicsLayer, GeometryService, Draw, QueryTask, Query) {
 	"use strict";
 	var map, geometryService, draw, queryTask, serviceAreaLayer, selectionLayer;
 
-
+	esriConfig.defaults.io.proxyUrl = "proxy.ashx";
 
 	/** 
 	 * @returns {dojo/Deferred}
