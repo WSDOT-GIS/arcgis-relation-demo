@@ -1,12 +1,13 @@
 ﻿/*global require*/
 require([
 	"esri/map",
+	"esri/graphic",
 	"esri/layers/GraphicsLayer",
 	"esri/tasks/GeometryService",
 	"esri/toolbars/draw",
 	"esri/tasks/QueryTask",
 	"esri/tasks/query"
-], function (Map, GraphicsLayer, GeometryService, Draw, QueryTask, Query) {
+], function (Map, Graphic, GraphicsLayer, GeometryService, Draw, QueryTask, Query) {
 	"use strict";
 	var map, geometryService, draw, queryTask, serviceAreaLayer, selectionLayer;
 
@@ -24,11 +25,27 @@ require([
 		return queryTask.execute(query);
 	}
 
+	/**
+	 * @param {Event} evt
+	 * @param {Geometry} evt.geometry
+	 */
+	function handleUnion(evt) {
+		var graphic;
+		graphic = new Graphic(evt.geometry);
+		serviceAreaLayer.add(graphic);
+	}
+
+	/**
+	 * @param {object} queryResponse
+	 * @param {Geometry} queryResponse.geometry
+	 * @param {Geometry} queryResponse.geographicGeometry
+	 */
 	function addSelectedCountiesToLayer(queryResponse) {
+		var geometries;
 		if (!serviceAreaLayer.graphics.length) {
-			queryResponse.features.forEach(function (feature) {
-				serviceAreaLayer.add(feature);
-			});
+			geometryService.union(queryResponse.features.map(function (feature) {
+				return feature.geometry;
+			}), handleUnion, handleError);
 		} else {
 			queryResponse.features.forEach(function (feature) {
 				selectionLayer.add(feature);
