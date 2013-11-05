@@ -5,10 +5,11 @@ require([
 	"esri/graphic",
 	"esri/layers/GraphicsLayer",
 	"esri/tasks/GeometryService",
+	"esri/tasks/RelationParameters",
 	"esri/toolbars/draw",
 	"esri/tasks/QueryTask",
 	"esri/tasks/query"
-], function (esriConfig, Map, Graphic, GraphicsLayer, GeometryService, Draw, QueryTask, Query) {
+], function (esriConfig, Map, Graphic, GraphicsLayer, GeometryService, RelationParameters, Draw, QueryTask, Query) {
 	"use strict";
 	var map, geometryService, draw, queryTask, serviceAreaLayer, selectionLayer;
 
@@ -26,14 +27,38 @@ require([
 		return queryTask.execute(query);
 	}
 
-	/**
-	 * @param {Event} evt
-	 * @param {Geometry} evt.geometry
+	/** Creates a Graphic from the union Geometry and adds it to the service area graphics layer.
+	 * @param {Geometry} geometry
 	 */
 	function handleUnion(geometry) {
 		var graphic;
 		graphic = new Graphic(geometry);
 		serviceAreaLayer.add(graphic);
+	}
+
+
+
+	/** Returns the geometry property of a Graphic. Intended for use with Array.map function.
+	 * @returns {Geometry}
+	 */
+	function getGeometryFromFeature(/**{Graphic}*/ feature) {
+		return feature.geometry;
+	}
+
+	/** Determines if any of the values in an array match a given value.
+	 * @returns {boolean}
+	 */
+	function arrayContainsValue(/**{Array}*/ a, v) {
+		var output = false, i, l;
+
+		for (i = 0, l = a.length; i < l; i += 1) {
+			if (a[i] === v) {
+				output = true;
+				break;
+			}
+		}
+
+		return output;
 	}
 
 	/**
@@ -42,15 +67,42 @@ require([
 	 * @param {Geometry} queryResponse.geographicGeometry
 	 */
 	function addSelectedCountiesToLayer(queryResponse) {
-		var geometries;
+		var relationParameters, responseGeometries;
+
+		/** @typedef Relationship
+		 * @property {number} geometry1Index
+		 * @property {number} geometry2Index
+		 */
+
+		function handleRelation(/**{Relationship[]}*/ relationships) {
+			var i, l, relationship, previouslyEncounteredIndexes = [];
+
+			for (i = 0, l = relationships.length; i < l; i += 1) {
+				relationship = relationships[i];
+				if (!arrayContainsValue(previouslyEncounteredIndexes, relationship.geometry1Index)) {
+					selectionLayer.add(queryResponse.features[relationship.geometry1Index]);
+					previouslyEncounteredIndexes.push(relationship.geometry1Index);
+				}
+			}
+		}
+
+		responseGeometries = queryResponse.features.map(getGeometryFromFeature);
+
 		if (!serviceAreaLayer.graphics.length) {
-			geometryService.union(queryResponse.features.map(function (feature) {
-				return feature.geometry;
-			}), handleUnion, handleError);
+			geometryService.union(responseGeometries, handleUnion, handleError);
 		} else {
-			queryResponse.features.forEach(function (feature) {
-				selectionLayer.add(feature);
-			});
+			relationParameters = new RelationParameters();
+			relationParameters.geometries1 = responseGeometries;
+			relationParameters.geometries2 = serviceAreaLayer.graphics.map(getGeometryFromFeature); 
+			relationParameters.relation = RelationParameters.SPATIAL_REL_WITHIN;
+
+
+			geometryService.relation(relationParameters, handleRelation, handleError);
+
+			////selectionLayer.clear();
+			////queryResponse.features.forEach(function (feature) {
+			////	selectionLayer.add(feature);
+			////});
 		}
 	}
 
