@@ -30,9 +30,9 @@ require([
 	 * @param {Event} evt
 	 * @param {Geometry} evt.geometry
 	 */
-	function handleUnion(evt) {
+	function handleUnion(geometry) {
 		var graphic;
-		graphic = new Graphic(evt.geometry);
+		graphic = new Graphic(geometry);
 		serviceAreaLayer.add(graphic);
 	}
 
