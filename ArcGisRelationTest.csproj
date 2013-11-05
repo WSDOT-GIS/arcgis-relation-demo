@@ -50,6 +50,8 @@
     <Content Include="Styles\index.css" />
     <Content Include="proxy.ashx" />
     <Content Include="proxy.config" />
+    <Content Include="LICENSE" />
+    <Content Include="README.md" />
     <None Include="Scripts\_references.js" />
     <Content Include="web.config" />
     <None Include="web.Debug.config">
