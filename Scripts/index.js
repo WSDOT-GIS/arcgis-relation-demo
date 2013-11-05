@@ -16,24 +16,14 @@ require([
 
 	esriConfig.defaults.io.proxyUrl = "proxy.ashx";
 
+	/** Sends the error to the console if the browser supports it.
+	*/
 	function handleError(error) {
 		if (window.console) {
 			if (window.console.error) {
 				window.console.error("error", error);
 			}
 		}
-	}
-
-	/** 
-	 * @returns {dojo/Deferred}
-	 */
-	function queryCounties(response) {
-		var query;
-
-		query = new Query();
-		query.returnGeometry = true;
-		query.geometry = response.geometry;
-		return queryTask.execute(query);
 	}
 
 	/** Creates a Graphic from the union Geometry and adds it to the service area graphics layer.
@@ -44,9 +34,7 @@ require([
 		graphic = new Graphic(geometry);
 		serviceAreaLayer.add(graphic);
 	}
-
-
-
+	
 	/** Returns the geometry property of a Graphic. Intended for use with Array.map function.
 	 * @returns {Geometry}
 	 */
@@ -79,10 +67,12 @@ require([
 		var relationParameters, responseGeometries;
 
 		/** @typedef Relationship
-		 * @property {number} geometry1Index
-		 * @property {number} geometry2Index
+		 * @property {number} geometry1Index - Index corresponding to the "responseGeometries" array.
+		 * @property {number} geometry2Index - Index corresponding to the servideAreaLayer.graphics array. In this app there is only ever one service area graphic, so this will always be 0.
 		 */
 
+		/** Adds the county geometries that are inside of the service area to the selection graphics layer.
+		 */
 		function handleRelation(/**{Relationship[]}*/ relationships) {
 			var i, l, relationship, previouslyEncounteredIndexes = [];
 
@@ -103,24 +93,31 @@ require([
 			relationParameters = new RelationParameters();
 			relationParameters.geometries1 = responseGeometries;
 			relationParameters.geometries2 = serviceAreaLayer.graphics.map(getGeometryFromFeature); 
-			relationParameters.relation = RelationParameters.SPATIAL_REL_WITHIN;
+			relationParameters.relation = RelationParameters.SPATIAL_REL_INTERIORINTERSECTION;
 
 			selectionLayer.clear();
 
 			geometryService.relation(relationParameters, handleRelation, handleError);
 		}
 	}
-
-
-
-	/**
+	
+	/** Queries the counties layer for features that intersect the drawn geometry.
 	 * @param {object} response
-	 * @param {object} response.geometry
+	 * @param {Geometry} response.geometry
+	 * @return {dojo/Deferred}
 	 */
-	function selectCountiesOnDrawComplete(response) {
-		queryCounties(response).then(addSelectedCountiesToLayer, handleError);
+	function queryForIntersectingCounties(response) {
+		var query;
+		query = new Query();
+		query.returnGeometry = true;
+		query.geometry = response.geometry;
+
+		return queryTask.execute(query).then(addSelectedCountiesToLayer, handleError);
 	}
 
+	/** Creates graphics layers for service area and selections, then adds them to the map.
+	 * Creates the Draw toolbar object, activates it and attaches a draw-complete event.
+	 */
 	function handleOnMapLoad() {
 		// Create the selected counties layer.
 		serviceAreaLayer = new GraphicsLayer({
@@ -141,9 +138,19 @@ require([
 		// Create the draw toolbar.
 		draw = new Draw(map);
 		draw.activate("polyline");
-		draw.on("draw-complete", selectCountiesOnDrawComplete);
+		draw.on("draw-complete", queryForIntersectingCounties);
+
+		// Setup the clear button to clear the graphics layer.
+		document.getElementById("clearButton").addEventListener("click", function () {
+			if (selectionLayer.graphics.length) {
+				selectionLayer.clear();
+			} else {
+				serviceAreaLayer.clear();
+			}
+		});
 	}
 
+	// Create geometryService, queryTask, and map objects.
 	geometryService = new GeometryService("http://www.wsdot.wa.gov/geosvcs/ArcGIS/rest/services/Geometry/GeometryServer");
 
 	queryTask = new QueryTask("http://www.wsdot.wa.gov/geosvcs/ArcGIS/rest/services/Shared/CountyBoundaries/MapServer/0");
@@ -155,5 +162,6 @@ require([
 		showAttribution: true
 	});
 
+	// Attach the map load event handler.
 	map.on("load", handleOnMapLoad);
 });
