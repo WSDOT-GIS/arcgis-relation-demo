@@ -96,13 +96,9 @@ require([
 			relationParameters.geometries2 = serviceAreaLayer.graphics.map(getGeometryFromFeature); 
 			relationParameters.relation = RelationParameters.SPATIAL_REL_WITHIN;
 
+			selectionLayer.clear();
 
 			geometryService.relation(relationParameters, handleRelation, handleError);
-
-			////selectionLayer.clear();
-			////queryResponse.features.forEach(function (feature) {
-			////	selectionLayer.add(feature);
-			////});
 		}
 	}
 
