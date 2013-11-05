@@ -1,4 +1,5 @@
 ﻿/*global require*/
+/*jslint white:true,browser:true*/
 require([
 	"esri/config",
 	"esri/map",
@@ -14,6 +15,14 @@ require([
 	var map, geometryService, draw, queryTask, serviceAreaLayer, selectionLayer;
 
 	esriConfig.defaults.io.proxyUrl = "proxy.ashx";
+
+	function handleError(error) {
+		if (window.console) {
+			if (window.console.error) {
+				window.console.error("error", error);
+			}
+		}
+	}
 
 	/** 
 	 * @returns {dojo/Deferred}
@@ -102,9 +111,7 @@ require([
 		}
 	}
 
-	function handleError(error) {
-		console.error("error", error);
-	}
+
 
 	/**
 	 * @param {object} response
