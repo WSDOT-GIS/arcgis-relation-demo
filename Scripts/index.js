@@ -2,6 +2,7 @@
 /*jslint white:true,browser:true*/
 if (!(Array.prototype.map && window.Element.prototype.addEventListener)) { // Check for required functions...
 	(function () {
+		"use strict";
 		var element;
 		document.getElementById("map").removeNode(true);
 		document.getElementById("toolbar").removeNode(true);
@@ -133,6 +134,7 @@ if (!(Array.prototype.map && window.Element.prototype.addEventListener)) { // Ch
 			if (serviceAreaLayer.graphics.length) {
 				// Trim the drawn geometry to only the portion that is inside the service area.
 				geometryService.intersect([response.geometry], serviceAreaLayer.graphics[0].geometry, queryCounties, handleError);
+				userGraphicLayer.add(new Graphic(response.geometry));
 			} else {
 				queryCounties(response.geometry);
 			}
@@ -163,6 +165,7 @@ if (!(Array.prototype.map && window.Element.prototype.addEventListener)) { // Ch
 
 			map.addLayer(serviceAreaLayer);
 			map.addLayer(selectionLayer);
+			map.addLayer(userGraphicLayer);
 
 			// Create the draw toolbar.
 			draw = new Draw(map);
