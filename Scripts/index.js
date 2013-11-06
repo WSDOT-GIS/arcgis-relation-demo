@@ -59,11 +59,10 @@ require([
 	}
 
 	/**
-	 * @param {object} queryResponse
-	 * @param {Geometry} queryResponse.geometry
-	 * @param {Geometry} queryResponse.geographicGeometry
+	 * @param {esri/tasks/FeatureSet} featureSet
+	 * @param {esri/Graphic[]} featureSet.features
 	 */
-	function addSelectedCountiesToLayer(queryResponse) {
+	function addSelectedCountiesToLayer(featureSet) {
 		var relationParameters, responseGeometries;
 
 		/** @typedef Relationship
@@ -72,30 +71,32 @@ require([
 		 */
 
 		/** Adds the county geometries that are inside of the service area to the selection graphics layer.
+		 * @param {Relationship[]} relationships
 		 */
-		function handleRelation(/**{Relationship[]}*/ relationships) {
+		function handleRelation(relationships) {
 			var i, l, relationship, previouslyEncounteredIndexes = [];
 
 			for (i = 0, l = relationships.length; i < l; i += 1) {
 				relationship = relationships[i];
 				if (!arrayContainsValue(previouslyEncounteredIndexes, relationship.geometry1Index)) {
-					selectionLayer.add(queryResponse.features[relationship.geometry1Index]);
+					selectionLayer.add(featureSet.features[relationship.geometry1Index]);
 					previouslyEncounteredIndexes.push(relationship.geometry1Index);
 				}
 			}
 		}
 
-		responseGeometries = queryResponse.features.map(getGeometryFromFeature);
+		responseGeometries = featureSet.features.map(getGeometryFromFeature);
 
 		if (!serviceAreaLayer.graphics.length) {
 			geometryService.union(responseGeometries, handleUnion, handleError);
 		} else {
+			selectionLayer.clear();
+
 			relationParameters = new RelationParameters();
 			relationParameters.geometries1 = responseGeometries;
 			relationParameters.geometries2 = serviceAreaLayer.graphics.map(getGeometryFromFeature); 
 			relationParameters.relation = RelationParameters.SPATIAL_REL_INTERIORINTERSECTION;
 
-			selectionLayer.clear();
 
 			geometryService.relation(relationParameters, handleRelation, handleError);
 		}
