@@ -104,15 +104,26 @@ require([
 	/** Queries the counties layer for features that intersect the drawn geometry.
 	 * @param {object} response
 	 * @param {Geometry} response.geometry
-	 * @return {dojo/Deferred}
 	 */
 	function queryForIntersectingCounties(response) {
 		var query;
-		query = new Query();
-		query.returnGeometry = true;
-		query.geometry = response.geometry;
 
-		return queryTask.execute(query).then(addSelectedCountiesToLayer, handleError);
+		/** Query the counties layer for intersecting geometry.
+		 * @param {(Geometry|Geometry[])} geometry
+		 */
+		function queryCounties(geometry) {
+			query = new Query();
+			query.returnGeometry = true;
+			query.geometry = geometry instanceof Array ? geometry[0] : geometry;
+			queryTask.execute(query).then(addSelectedCountiesToLayer, handleError);
+		}
+
+		if (serviceAreaLayer.graphics.length) {
+			// Trim the drawn geometry to only the portion that is inside the service area.
+			geometryService.intersect([response.geometry], serviceAreaLayer.graphics[0].geometry, queryCounties, handleError);
+		} else {
+			queryCounties(response.geometry);
+		}
 	}
 
 	/** Creates graphics layers for service area and selections, then adds them to the map.
