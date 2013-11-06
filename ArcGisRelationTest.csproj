@@ -53,6 +53,9 @@
     <Content Include="LICENSE" />
     <Content Include="README.md" />
     <None Include="Scripts\_references.js" />
+    <Content Include="Styles\index.min.css">
+      <DependentUpon>index.css</DependentUpon>
+    </Content>
     <Content Include="web.config" />
     <None Include="web.Debug.config">
       <DependentUpon>web.config</DependentUpon>
