@@ -25,7 +25,25 @@ if (!(Array.prototype.map && window.Element.prototype.addEventListener)) { // Ch
 		"use strict";
 		var map, geometryService, draw, queryTask, serviceAreaLayer, selectionLayer, userGraphicLayer;
 
-		esriConfig.defaults.io.proxyUrl = "proxy.ashx";
+		/** Sets the cursor to "wait", disables the Draw toolbar, and disables the clear button.
+		 * @param {boolean} shouldWait - Set to true to disable, false to enable.
+		 */
+		function setApplicationToWait(shouldWait) {
+			var button = document.getElementById("clearButton");
+			if (shouldWait) {
+				// Disable the draw toolbar.
+				draw.deactivate();
+				map.setCursor("wait");
+				button.disabled = true;
+			} else {
+				draw.activate("polyline");
+				map.setCursor("auto");
+				document.body.style.cursor = "auto";
+				button.disabled = false;
+			}
+		}
+
+		
 
 		/** Sends the error to the console if the browser supports it.
 		*/
@@ -35,6 +53,7 @@ if (!(Array.prototype.map && window.Element.prototype.addEventListener)) { // Ch
 					window.console.error("error", error);
 				}
 			}
+			setApplicationToWait(false);
 		}
 
 		/** Creates a Graphic from the union Geometry and adds it to the service area graphics layer.
@@ -44,6 +63,7 @@ if (!(Array.prototype.map && window.Element.prototype.addEventListener)) { // Ch
 			var graphic;
 			graphic = new Graphic(geometry);
 			serviceAreaLayer.add(graphic);
+			setApplicationToWait(false);
 		}
 
 		/** Returns the geometry property of a Graphic. Intended for use with Array.map function.
@@ -94,6 +114,8 @@ if (!(Array.prototype.map && window.Element.prototype.addEventListener)) { // Ch
 						previouslyEncounteredIndexes.push(relationship.geometry1Index);
 					}
 				}
+
+				setApplicationToWait(false);
 			}
 
 			// Loop through the array of Graphics and return an array of their Geometries.
@@ -120,6 +142,9 @@ if (!(Array.prototype.map && window.Element.prototype.addEventListener)) { // Ch
 		 */
 		function queryForIntersectingCounties(response) {
 			var query;
+
+			setApplicationToWait(true);
+
 
 			/** Query the counties layer for intersecting geometry.
 			 * @param {(Geometry|Geometry[])} geometry
@@ -183,6 +208,8 @@ if (!(Array.prototype.map && window.Element.prototype.addEventListener)) { // Ch
 				}
 			});
 		}
+
+		esriConfig.defaults.io.proxyUrl = "proxy.ashx";
 
 		// Create geometryService, queryTask, and map objects.
 		geometryService = new GeometryService("http://www.wsdot.wa.gov/geosvcs/ArcGIS/rest/services/Geometry/GeometryServer");
