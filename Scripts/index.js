@@ -165,6 +165,21 @@ if (!(Array.prototype.map && window.Element.prototype.addEventListener)) { // Ch
 			}
 		}
 
+		/** Handles the clear button click action. Each press will clear a single layer if the first layer in this list is already cleared, the next one is tried...
+		 * 1. User drawn graphics layer
+		 * 2. Selection graphics layer
+		 * 3. Service area graphics layer
+		 */
+		function clearLayer() {
+			if (userGraphicLayer.graphics.length) {
+				userGraphicLayer.clear();
+			} else if (selectionLayer.graphics.length) {
+				selectionLayer.clear();
+			} else {
+				serviceAreaLayer.clear();
+			}
+		}
+
 		/** Creates graphics layers for service area and selections, then adds them to the map.
 		 * Creates the Draw toolbar object, activates it and attaches a draw-complete event.
 		 */
@@ -198,15 +213,7 @@ if (!(Array.prototype.map && window.Element.prototype.addEventListener)) { // Ch
 			draw.on("draw-complete", queryForIntersectingCounties);
 
 			// Setup the clear button to clear the graphics layer.
-			document.getElementById("clearButton").addEventListener("click", function () {
-				if (userGraphicLayer.graphics.length) {
-					userGraphicLayer.clear();
-				} else if (selectionLayer.graphics.length) {
-					selectionLayer.clear();
-				} else {
-					serviceAreaLayer.clear();
-				}
-			});
+			document.getElementById("clearButton").addEventListener("click", clearLayer);
 		}
 
 		esriConfig.defaults.io.proxyUrl = "proxy.ashx";
