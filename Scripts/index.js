@@ -26,7 +26,7 @@ if (!(Array.prototype.map && window.Element.prototype.addEventListener)) { // Ch
 		var map, geometryService, draw, queryTask, serviceAreaLayer, selectionLayer, userGraphicLayer;
 
 		/** Sets the cursor to "wait", disables the Draw toolbar, and disables the clear button.
-		 * @param {boolean} shouldWait - Set to true to disable, false to enable.
+		 * @param {(boolean|string)} shouldWait - Set to true to disable, false to enable. Set to a string to enable with a certain geometry type, e.g., "polyline", "polygon", "multipoint".
 		 */
 		function setApplicationToWait(shouldWait) {
 			var button = document.getElementById("clearButton");
@@ -36,7 +36,7 @@ if (!(Array.prototype.map && window.Element.prototype.addEventListener)) { // Ch
 				map.setCursor("wait");
 				button.disabled = true;
 			} else {
-				draw.activate("polyline");
+				draw.activate(typeof shouldWait === "string" ? shouldWait : "polyline");
 				map.setCursor("auto");
 				document.body.style.cursor = "auto";
 				button.disabled = false;
