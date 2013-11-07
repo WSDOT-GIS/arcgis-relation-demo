@@ -14,7 +14,7 @@ Demonstrates use of the GeometryService Relation operation.
 1. Draw a polyline on the map.
 2. Wait for results. A service area will be drawn on the map outlining the counties that the line intersected.
 3. Draw another polyline on the map.
-4. Wait for the results. The selected counties will be drawn on the map. None of the selected counties should be outside of the service area polygon, even if the line the user drew WAS outside the service area.
+4. Wait for the results. The selected counties will be drawn on the map. None of the selected counties should be outside of the service area polygon, even if the line the user drew extends beyound the service area.
 
 ## Behind the scenes ##
 
