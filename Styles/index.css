@@ -11,6 +11,7 @@
 	margin: 1em;
 }
 
+/** Style the SVG of the grahpics layers. */
 .service-area path, .selection path, .user-graphics path {
 	stroke-opacity: 1;
 }
