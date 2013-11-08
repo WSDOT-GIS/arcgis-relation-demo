@@ -47,11 +47,17 @@
   <ItemGroup>
     <Content Include="index.html" />
     <Content Include="Scripts\index.js" />
+    <Content Include="Scripts\index.min.js">
+      <DependentUpon>index.js</DependentUpon>
+    </Content>
     <Content Include="Styles\index.css" />
     <Content Include="proxy.ashx" />
     <Content Include="proxy.config" />
     <Content Include="LICENSE" />
     <Content Include="README.md" />
+    <Content Include="Scripts\index.min.js.map">
+      <DependentUpon>index.js</DependentUpon>
+    </Content>
     <None Include="Scripts\_references.js" />
     <Content Include="Styles\index.min.css">
       <DependentUpon>index.css</DependentUpon>

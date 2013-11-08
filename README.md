@@ -1,4 +1,4 @@
-arcgis-relation-demo
+ArcGIS Relation Demo
 ====================
 
 Demonstrates use of the GeometryService Relation operation.
