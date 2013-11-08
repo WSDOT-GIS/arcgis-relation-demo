@@ -8,6 +8,33 @@
 <body>
 	<div id="map"></div>
 	<div id="toolbar">
+		<select id="geometryTypeSelect">
+			<optgroup label="Point">
+				<option value="POINT">point</option>
+				<option value="MULTI_POINT">multi point</option>
+			</optgroup>
+			<optgroup label="Line">
+				<option value="LINE">line</option>
+				<option value="POLYLINE" selected="selected">polyline</option>
+				<option value="FREEHAND_POLYLINE">freehand polyline</option>
+			</optgroup>
+			<optgroup label="Polygon">
+				<option value="POLYGON">polygon</option>
+				<option value="EXTENT">extent</option>
+				<option value="FREEHAND_POLYGON">freehand polygon</option>
+
+				<option value="CIRCLE">circle</option>
+				<option value="ELLIPSE">ellipse</option>
+				<option value="RECTANGLE">rectangle</option>
+				<option value="TRIANGLE">triangle</option>
+
+				<option value="ARROW">arrow</option>
+				<option value="DOWN_ARROW">down arrow</option>
+				<option value="LEFT_ARROW">left arrow</option>
+				<option value="RIGHT_ARROW">right arrow</option>
+				<option value="UP_ARROW">up arrow</option>
+			</optgroup>
+		</select>
 		<button id="clearButton" type="button">Clear</button>
 	</div>
 	<script>

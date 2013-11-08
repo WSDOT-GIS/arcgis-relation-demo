@@ -29,7 +29,9 @@ if (!(Array.prototype.map && window.Element.prototype.addEventListener)) { // Ch
 		 * @param {(boolean|string)} shouldWait - Set to true to disable, false to enable. Set to a string to enable with a certain geometry type, e.g., "polyline", "polygon", "multipoint".
 		 */
 		function setApplicationToWait(shouldWait) {
-			var button = document.getElementById("clearButton");
+			var button = document.getElementById("clearButton"), select = document.getElementById("geometryTypeSelect");
+
+
 			if (shouldWait) {
 				// Disable the draw toolbar.
 				draw.deactivate();
