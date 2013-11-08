@@ -158,6 +158,7 @@ if (!(Array.prototype.map && window.Element.prototype.addEventListener)) { // Ch
 			if (serviceAreaLayer.graphics.length) {
 				// Trim the drawn geometry to only the portion that is inside the service area.
 				geometryService.intersect([response.geometry], serviceAreaLayer.graphics[0].geometry, queryCounties, handleError);
+				userGraphicLayer.clear();
 				userGraphicLayer.add(new Graphic(response.geometry));
 			} else {
 				queryCounties(response.geometry);
