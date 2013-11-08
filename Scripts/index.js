@@ -26,26 +26,23 @@ if (!(Array.prototype.map && window.Element.prototype.addEventListener)) { // Ch
 		var map, geometryService, draw, queryTask, serviceAreaLayer, selectionLayer, userGraphicLayer;
 
 		/** Sets the cursor to "wait", disables the Draw toolbar, and disables the clear button.
-		 * @param {(boolean|string)} shouldWait - Set to true to disable, false to enable. Set to a string to enable with a certain geometry type, e.g., "polyline", "polygon", "multipoint".
+		 * @param {boolean} shouldWait - Set to true to disable, false to enable.
 		 */
 		function setApplicationToWait(shouldWait) {
 			var button = document.getElementById("clearButton"), select = document.getElementById("geometryTypeSelect");
 
-
-			if (shouldWait) {
+			if (shouldWait === true) {
 				// Disable the draw toolbar.
 				draw.deactivate();
 				map.setCursor("wait");
-				button.disabled = true;
+				button.disabled = select.disabled = true;
 			} else {
-				draw.activate(typeof shouldWait === "string" ? shouldWait : "polyline");
+				draw.activate(Draw[select.value]);
 				map.setCursor("auto");
 				document.body.style.cursor = "auto";
-				button.disabled = false;
+				button.disabled = select.disabled = false;
 			}
 		}
-
-		
 
 		/** Sends the error to the console if the browser supports it.
 		*/
@@ -211,11 +208,19 @@ if (!(Array.prototype.map && window.Element.prototype.addEventListener)) { // Ch
 
 			// Create the draw toolbar.
 			draw = new Draw(map);
-			draw.activate("polyline");
 			draw.on("draw-complete", queryForIntersectingCounties);
+			////draw.activate("polyline");
+
+			setApplicationToWait(false);
 
 			// Setup the clear button to clear the graphics layer.
 			document.getElementById("clearButton").addEventListener("click", clearLayer);
+			// When the select's value is changed, the draw toolbar will be activated with a different geometry type.
+			document.getElementById("geometryTypeSelect").addEventListener("change", function () {
+				// The select will be disabled when the draw toolbar should not be activated, so there is no need to check
+				// to see if the draw toolbar is activated.
+				draw.activate(Draw[this.value]);
+			});
 		}
 
 		esriConfig.defaults.io.proxyUrl = "proxy.ashx";

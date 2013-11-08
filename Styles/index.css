@@ -28,5 +28,7 @@
 
 .user-graphics path {
 	stroke: #ea6e6e;
+	fill: #808080;
+	fill-opacity: 0.5;
 	stroke-width: 2;
 }
