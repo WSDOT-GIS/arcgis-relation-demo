@@ -29,18 +29,23 @@ if (!(Array.prototype.map && window.Element.prototype.addEventListener)) { // Ch
 		 * @param {boolean} shouldWait - Set to true to disable, false to enable.
 		 */
 		function setApplicationToWait(shouldWait) {
-			var button = document.getElementById("clearButton"), select = document.getElementById("geometryTypeSelect");
+			var button, select, progress;
+			button = document.getElementById("clearButton");
+			select = document.getElementById("geometryTypeSelect");
+			progress = document.getElementById("progressBar");
 
 			if (shouldWait === true) {
 				// Disable the draw toolbar.
 				draw.deactivate();
 				map.setCursor("wait");
 				button.disabled = select.disabled = true;
+				progress.hidden = false;
 			} else {
 				draw.activate(Draw[select.value]);
 				map.setCursor("auto");
 				document.body.style.cursor = "auto";
 				button.disabled = select.disabled = false;
+				progress.hidden = true;
 			}
 		}
 
@@ -159,7 +164,7 @@ if (!(Array.prototype.map && window.Element.prototype.addEventListener)) { // Ch
 				// Trim the drawn geometry to only the portion that is inside the service area.
 				geometryService.intersect([response.geometry], serviceAreaLayer.graphics[0].geometry, queryCounties, handleError);
 				userGraphicLayer.clear();
-				userGraphicLayer.add(new Graphic(response.geometry));
+				userGraphicLayer.add(new Graphic(response.geometry, null, {"type": response.geometry.type}));
 			} else {
 				queryCounties(response.geometry);
 			}
@@ -200,7 +205,8 @@ if (!(Array.prototype.map && window.Element.prototype.addEventListener)) { // Ch
 			userGraphicLayer = new GraphicsLayer({
 				id: "userGraphics",
 				className: "user-graphics",
-				styling: false
+				styling: false,
+				dataAttributes: ["type"]
 			});
 
 			map.addLayer(serviceAreaLayer);

@@ -4,6 +4,13 @@
 	height: 100%;
 }
 
+#map progress {
+	position: absolute;
+	top: 50%;
+	right: 50%;
+	z-index: 1;
+}
+
 #toolbar {
 	position: absolute;
 	top: 0;
@@ -29,7 +36,10 @@
 
 .user-graphics path {
 	stroke: #ea6e6e;
+	stroke-width: 2;
+}
+
+.user-graphics path[data-type='polygon'] {
 	fill: #808080;
 	fill-opacity: 0.5;
-	stroke-width: 2;
 }
